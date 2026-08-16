@@ -1925,6 +1925,10 @@ Perintah ini hanya bisa digunakan oleh Owner!` }, { quoted: msg });
                 <path d="M 578 1145 L 575 1155 L 585 1155 Z" fill="#fff" />
                 <path d="M 622 1145 L 625 1155 L 615 1155 Z" fill="#fff" />`;
 
+            const TextToSVG = (await import('text-to-svg')).default;
+            const fontPath = await this.getValidFontPath();
+            const textToSVG = TextToSVG.loadSync(fontPath);
+
             if (isVideo) {
                 const bg = await sharp(imageBuffer)
                     .resize(width, height, { fit: 'cover' })
@@ -1954,10 +1958,10 @@ Perintah ini hanya bisa digunakan oleh Owner!` }, { quoted: msg });
                     </defs>
                     <rect y="1000" width="100%" height="280" fill="url(#gradBot)" />
                     
-                    <text x="360" y="80" font-family="Arial, sans-serif" font-size="42" font-weight="bold" fill="#ffffff" text-anchor="middle">${name}</text>
-                    <text x="360" y="130" font-family="Arial, sans-serif" font-size="28" fill="#dddddd" text-anchor="middle">${duration}</text>
+                    ${textToSVG.getPath(name.substring(0, 20), { x: 360, y: 80, fontSize: 42, anchor: 'center baseline', attributes: { fill: '#ffffff', 'font-weight': 'bold' } })}
+                    ${textToSVG.getPath(duration, { x: 360, y: 130, fontSize: 28, anchor: 'center baseline', attributes: { fill: '#dddddd' } })}
                     
-                    <text x="360" y="650" font-family="Arial, sans-serif" font-size="32" font-weight="bold" fill="#ffffff" text-anchor="middle">You</text>
+                    ${textToSVG.getPath('You', { x: 360, y: 650, fontSize: 32, anchor: 'center baseline', attributes: { fill: '#ffffff', 'font-weight': 'bold' } })}
                     
                     ${iconOptions}
                     ${iconVideo}
@@ -2001,8 +2005,8 @@ Perintah ini hanya bisa digunakan oleh Owner!` }, { quoted: msg });
                 <svg width="${width}" height="${height}" xmlns="http://www.w3.org/2000/svg">
                     <rect width="100%" height="100%" fill="#0b141a" />
                     
-                    <text x="360" y="110" font-family="Arial, sans-serif" font-size="42" font-weight="bold" fill="#ffffff" text-anchor="middle">${name}</text>
-                    <text x="360" y="160" font-family="Arial, sans-serif" font-size="28" fill="#8696a0" text-anchor="middle">${duration}</text>
+                    ${textToSVG.getPath(name.substring(0, 20), { x: 360, y: 110, fontSize: 42, anchor: 'center baseline', attributes: { fill: '#ffffff', 'font-weight': 'bold' } })}
+                    ${textToSVG.getPath(duration, { x: 360, y: 160, fontSize: 28, anchor: 'center baseline', attributes: { fill: '#8696a0' } })}
                     
                     ${bottomBg}
                     
