@@ -1178,6 +1178,7 @@ private loadKaryawanData() {
         ...aiCommands,
         ...cdramaCommands,
         ...fakecallCommands,
+        ...iqcCommands,
         ...gameCommands
     ];
     const isProtectedFeature = requireRegistrationCommands.includes(requestedCmd.toLowerCase()) || requireRegistrationCommands.includes("." + possibleCommandName);
