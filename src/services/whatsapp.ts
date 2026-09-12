@@ -3140,7 +3140,7 @@ Contoh: .delowner 628xxx` }, { quoted: msg });
         try {
            const ytSearch = await vredenYt.search(searchQuery);
            if (ytSearch && ytSearch.status && ytSearch.results && ytSearch.results.length > 0) {
-              videos = ytSearch.results.filter(v => v.type === 'video' && v.seconds <= 600);
+              videos = ytSearch.results.filter(v => v.type === 'video' && v.seconds <= 60);
               if (videos.length === 0) {
                  videos = ytSearch.results.filter(v => v.type === 'video');
               }
@@ -3162,7 +3162,7 @@ Contoh: .delowner 628xxx` }, { quoted: msg });
                     title: v.title,
                     type: 'video',
                     seconds: v.duration ? (v.duration.seconds || 0) : 0
-                 })).filter(v => v.seconds <= 600);
+                 })).filter(v => v.seconds <= 60);
                  
                  if (videos.length === 0) {
                     videos = fallbackSearch.videos.map(v => ({
@@ -3189,7 +3189,7 @@ Contoh: .delowner 628xxx` }, { quoted: msg });
                 const dlRes = await vredenYt.ytmp4(randomVideo.url);
                 
                 if (dlRes && dlRes.status && dlRes.download && dlRes.download.url) {
-                  await this.sock.sendMessage(jid, { video: { url: dlRes.download.url }, caption: `✅ *Berhasil menemukan video!*\n\n${targetQuery}\n\n${randomVideo.title || ''}` }, { quoted: msg });
+                  await this.sock.sendMessage(jid, { video: { url: dlRes.download.url }, gifPlayback: true, caption: `✅ *Berhasil menemukan video!*\n\n${targetQuery}\n\n${randomVideo.title || ''}` }, { quoted: msg });
                   this.broadcastState(`Responded to ${targetQuery} command`);
                   return; // Success
                 }
@@ -3930,7 +3930,9 @@ Link referensi: ${randomItem.link}` }, { quoted: msg });
             
             if (item) {
                 const imageUrl = item.file_url || item.large_file_url;
-                await this.sock.sendMessage(jid, { image: { url: imageUrl }, caption: `🔞 *NSFW ${q.charAt(0).toUpperCase() + q.slice(1)}*` }, { quoted: msg });
+                const axios = require('axios');
+                const imgRes = await axios.get(imageUrl, { responseType: 'arraybuffer' });
+                await this.sock.sendMessage(jid, { image: Buffer.from(imgRes.data), caption: `🔞 *NSFW ${q.charAt(0).toUpperCase() + q.slice(1)}*` }, { quoted: msg });
             } else {
                 await this.sock.sendMessage(jid, { text: `❌ *Foto ${q} tidak ditemukan.*` }, { quoted: msg });
             }
