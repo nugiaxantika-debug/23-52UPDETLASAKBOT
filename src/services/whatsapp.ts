@@ -3189,7 +3189,7 @@ Contoh: .delowner 628xxx` }, { quoted: msg });
                 const dlRes = await vredenYt.ytmp4(randomVideo.url);
                 
                 if (dlRes && dlRes.status && dlRes.download && dlRes.download.url) {
-                  await this.sock.sendMessage(jid, { video: { url: dlRes.download.url }, gifPlayback: true, caption: `✅ *Berhasil menemukan video!*\n\n${targetQuery}\n\n${randomVideo.title || ''}` }, { quoted: msg });
+                  await this.sock.sendMessage(jid, { video: { url: dlRes.download.url }, caption: `✅ *Berhasil menemukan video!*\n\n${targetQuery}\n\n${randomVideo.title || ''}` }, { quoted: msg });
                   this.broadcastState(`Responded to ${targetQuery} command`);
                   return; // Success
                 }
