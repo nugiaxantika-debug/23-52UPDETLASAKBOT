@@ -60,6 +60,7 @@ private karyawanData = {
   private registeredUsers = new Map<string, { nama: string, umur: string }>();
   private activeGames = new Map<string, { answer: string | string[] | number, type: string, attempts?: number, state?: string, players?: string[], turnIndex?: number, positions?: Record<string, number> }>();
   private activeSwGroups = new Set<string>();
+  private autoBlockPrivate: boolean = false;
   
   // Anti features
     
@@ -1036,6 +1037,19 @@ private loadKaryawanData() {
     console.log("[DEBUG] isOwner:", isOwner);
     const isPremium = isOwner || this.premiumNumbers.has(senderJid);
     const isGroup = jid.endsWith("@g.us");
+
+    // Auto block private feature
+    if (!isGroup && !msg.key.fromMe && !isOwner && this.autoBlockPrivate) {
+      if (body !== ".autoblockprivate" && body !== ".delautoblockprivate" && body !== "autoblockprivate" && body !== "delautoblockprivate") {
+        try {
+          await this.sock.sendMessage(jid, { text: "⛔ *Sistem Auto Block Private Aktif*\n\nMaaf, bot tidak menerima pesan pribadi. Anda telah diblokir secara otomatis." }, { quoted: msg });
+          await this.sock.updateBlockStatus(senderJid, "block");
+          return; // Stop processing further
+        } catch (e) {
+          console.error("Failed to block user:", e);
+        }
+      }
+    }
     if (this.afkUsers.has(senderJid)) {
         const afkInfo = this.afkUsers.get(senderJid);
         this.afkUsers.delete(senderJid);
@@ -1051,7 +1065,7 @@ private loadKaryawanData() {
     }
     
     const requestedCmd = body.split(/[\s\n]+/)[0];
-    const ownerCommands = ['.addtextnama', 'addtextnama', '.deltextnama', 'deltextnama', '.ownermenu', 'ownermenu', '.antibot', 'antibot', '.autoread', 'autoread', '.savekontak', 'savekontak', '.broadcast', 'broadcast', '.restartbot', 'restartbot', '.addpremium', 'addpremium', '.addprem', 'addprem', '.addowner', 'addowner', '.delowner', 'delowner', '.listowner', 'listowner', '.listpremium', 'listpremium', '.delpremium', 'delpremium', '.setbotpp', 'setbotpp', '.setbotname', 'setbotname', '.addnamabot', 'addnamabot', '.delnamabot', 'delnamabot', '.totalfitur', 'totalfitur', '.addprefix', 'addprefix', '.delprefix', 'delprefix', '.listprefix', 'listprefix', '.addpoweredby', 'addpoweredby', '.delpoweredby', 'delpoweredby', '.listpoweredby', 'listpoweredby', '.linkset', 'linkset', '.dellinkset', 'dellinkset', '.addcmd', 'addcmd', '.delcmd', 'delcmd', '.listcmd', 'listcmd', '.self', 'self', '.publik', 'publik', '.setcoverbot', 'setcoverbot', '.delcoverbot', 'delcoverbot', '.anticall', 'anticall', '.autotyping', 'autotyping', '.addsewa', 'addsewa', '.delsewa', 'delsewa', '.listsewa', 'listsewa', '.joingc', 'joingc', '.creategc', 'creategc', '.addsticker', 'addsticker', '.delsticker', 'delsticker', '.addlimit', 'addlimit', '.dellimit', 'dellimit', '.listlimit', 'listlimit'];
+    const ownerCommands = ['.addtextnama', 'addtextnama', '.deltextnama', 'deltextnama', '.ownermenu', 'ownermenu', '.antibot', 'antibot', '.autoread', 'autoread', '.savekontak', 'savekontak', '.broadcast', 'broadcast', '.restartbot', 'restartbot', '.addpremium', 'addpremium', '.addprem', 'addprem', '.addowner', 'addowner', '.delowner', 'delowner', '.listowner', 'listowner', '.listpremium', 'listpremium', '.delpremium', 'delpremium', '.setbotpp', 'setbotpp', '.setbotname', 'setbotname', '.addnamabot', 'addnamabot', '.delnamabot', 'delnamabot', '.totalfitur', 'totalfitur', '.addprefix', 'addprefix', '.delprefix', 'delprefix', '.listprefix', 'listprefix', '.addpoweredby', 'addpoweredby', '.delpoweredby', 'delpoweredby', '.listpoweredby', 'listpoweredby', '.linkset', 'linkset', '.dellinkset', 'dellinkset', '.addcmd', 'addcmd', '.delcmd', 'delcmd', '.listcmd', 'listcmd', '.self', 'self', '.publik', 'publik', '.setcoverbot', 'setcoverbot', '.delcoverbot', 'delcoverbot', '.anticall', 'anticall', '.autotyping', 'autotyping', '.addsewa', 'addsewa', '.delsewa', 'delsewa', '.listsewa', 'listsewa', '.joingc', 'joingc', '.creategc', 'creategc', '.addsticker', 'addsticker', '.delsticker', 'delsticker', '.addlimit', 'addlimit', '.dellimit', 'dellimit', '.listlimit', 'listlimit', '.autoblockprivate', 'autoblockprivate', '.delautoblockprivate', 'delautoblockprivate'];
     const groupCommands = ['.afk', 'afk', '.joinch', 'joinch', '.cekidgc', 'cekidgc', '.infouser', 'infouser', '.tagadmin', 'tagadmin', '.infogrup', 'infogrup', '.leaderboard', 'leaderboard', '.totalchat', 'totalchat', '.groupmenu', 'groupmenu', '.delete', 'delete', '.hidetag', 'hidetag', '.kick', 'kick', '.add', 'add', '.open', 'open', '.close', 'close', '.open2', 'open2', '.close2', 'close2', '.antilinkall', 'antilinkall', '.linkgc', 'linkgc', '.setppgc', 'setppgc', '.delppgc', 'delppgc', '.setwelcome', 'setwelcome', '.setbye', 'setbye', '.welcome', 'welcome', '.goodbye', 'goodbye', '.antitagsw', 'antitagsw', '.antivideo', 'antivideo', '.antifoto', 'antifoto', '.antifoto1x', 'antifoto1x', '.antistiker', 'antistiker', '.antispam', 'antispam', '.setnamegc', 'setnamegc', '.setdescgc', 'setdescgc', '.culikswgc', 'culikswgc', '.culikprofilegc', 'culikprofilegc', '.kickall', 'kickall', '.sewabot', 'sewabot', '.promote', 'promote', '.demote', 'demote', '.werewolf', 'werewolf', '.joinww', 'joinww', '.startww', 'startww', '.mutegc', 'mutegc', '.resetlink', 'resetlink', '.tagall', 'tagall', '.setbotbio', 'setbotbio', '.delbotbio', 'delbotbio', '.antivirtex', 'antivirtex', '.antitoxic', 'antitoxic', '.menfess', 'menfess', '.confess', 'confess', '.balasmenfess', 'balasmenfess', '.tolakmenfess', 'tolakmenfess', '.stopmenfess', 'stopmenfess', '.warn', 'warn', '.listwarn', 'listwarn', '.delwarn', 'delwarn', '.infowarn', 'infowarn'];
     const funCommands = ['.ceksifat', 'ceksifat', '.cekkenakalan', 'cekkenakalan', '.cekperawan', 'cekperawan', '.cekperjaka', 'cekperjaka', '.cekjanda', 'cekjanda', '.cekduda', 'cekduda', '.bego', 'bego', '.rate', 'rate', '.top', 'top', '.funmenu', 'funmenu', '.cekkhodam', 'cekkhodam', '.cekganteng', 'cekganteng', '.cekcantik', 'cekcantik', '.cekjodoh', 'cekjodoh', '.ceklesby', 'ceklesby', '.cekpasangan', 'cekpasangan', '.cekgay', 'cekgay', '.cekhoby', 'cekhoby', '.cekkesetiaan', 'cekkesetiaan', '.jadian', 'jadian', '.kiss', 'kiss', '.quotes', 'quotes', '.avatar', 'avatar', '.ppcouple', 'ppcouple', '.infonegara', 'infonegara', '.cekwibu', 'cekwibu', '.meme', 'meme', '.waifu', 'waifu', '.ceksange', 'ceksange', '.cekkaya', 'cekkaya', '.cekbucin', 'cekbucin', '.artinama', 'artinama', '.cekmasadepan', 'cekmasadepan', '.faktadunia', 'faktadunia', '.cekgempa', 'cekgempa', '.cekcuaca', 'cekcuaca'];
     const margaCommands = ['.margamenu', 'margamenu', '.cekpariban', 'cekpariban', '.cektartulang', 'cektartulang', '.cektarito', 'cektarito', '.cekpadan', 'cekpadan'];
@@ -1466,6 +1480,8 @@ Ketik menu yang kamu inginkan.`;
 Perintah ini hanya bisa digunakan oleh Owner!` }, { quoted: msg });
       const ownerText = `👑 *Owner Menu*
 
+│ .autoblockprivate
+│ .delautoblockprivate
 │ .broadcast
 │ .restartbot
 │ .addpremium / .delpremium
@@ -1513,7 +1529,22 @@ Perintah ini hanya bisa digunakan oleh Owner!` }, { quoted: msg });
       await this.sock.sendMessage(jid, msgObj, { quoted: this.getFakeMenuQuote(senderJid, msg.pushName || "User") });
       
       this.broadcastState(`Responded to ownermenu command`);
-    } else if (body.startsWith(".warn") || body.startsWith("warn")) {
+    
+    } else if (body === "autoblockprivate" || body === ".autoblockprivate") {
+      if (!isOwner) return await this.sock.sendMessage(jid, { text: `👑 *Akses Ditolak*
+Perintah ini hanya bisa digunakan oleh Owner!` }, { quoted: msg });
+      this.autoBlockPrivate = true;
+      await this.sock.sendMessage(jid, { text: `✅ *Berhasil mengaktifkan Auto Block Private*
+
+Setiap pesan pribadi yang masuk akan otomatis diblokir.` }, { quoted: msg });
+    } else if (body === "delautoblockprivate" || body === ".delautoblockprivate") {
+      if (!isOwner) return await this.sock.sendMessage(jid, { text: `👑 *Akses Ditolak*
+Perintah ini hanya bisa digunakan oleh Owner!` }, { quoted: msg });
+      this.autoBlockPrivate = false;
+      await this.sock.sendMessage(jid, { text: `✅ *Berhasil menonaktifkan Auto Block Private*
+
+Pesan pribadi kembali diizinkan.` }, { quoted: msg });
+} else if (body.startsWith(".warn") || body.startsWith("warn")) {
       if (!jid.endsWith("@g.us")) {
         await this.sock.sendMessage(jid, { text: "Perintah ini hanya bisa digunakan di dalam grup!" }, { quoted: msg });
       } else {
